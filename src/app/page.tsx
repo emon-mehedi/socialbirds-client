@@ -6,7 +6,7 @@ import {
 import EventCard from "@/components/event-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { sampleEvents } from "@/lib/placeholder-data";
+import { IEvent } from "@/components/types";
 
 // Static content for the stats, features and stories sections
 const stats = [
@@ -34,9 +34,10 @@ const stories = [
   { title: "A cleaner canal in one morning", location: "Dhap Canal", date: "Aug 9, 2026", image: "https://picsum.photos/seed/story6/800/600" },
 ];
 
-export default function HomePage() {
-  // TODO: replace with your database call for the next 6 upcoming events.
-  const upcomingEvents = sampleEvents.slice(0, 6);
+export default async function HomePage() {
+  const res = await fetch(`${process.env.BACKEND_SERVER_URI}/events`, { next: { revalidate: 60 } });
+  const events: IEvent[] = await res.json();
+  const upcomingEvents = events.slice(0, 6);
 
   return (
     <>

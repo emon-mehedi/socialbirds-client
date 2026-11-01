@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FiArrowLeft, FiCalendar, FiMapPin, FiUserPlus } from "react-icons/fi";
+import { FiArrowLeft, FiCalendar, FiMapPin } from "react-icons/fi";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import JoinButton from "@/components/join-button";
 
 
 export default async function EventDetailsPage({
@@ -43,9 +43,7 @@ export default async function EventDetailsPage({
             <li className="flex gap-3"><FiCalendar className="mt-0.5 text-lg text-emerald-600" /> {(event.date)}</li>
             <li className="flex gap-3"><FiMapPin className="mt-0.5 text-lg text-emerald-600" /> {event.location}</li>
           </ul>
-          <Button size="lg" className="mt-6 w-full bg-emerald-700 text-white hover:bg-emerald-800">
-            <FiUserPlus /> Join this event
-          </Button>
+          <JoinButton event={event}/>
         </aside>
       </div>
     </article>

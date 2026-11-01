@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 export default async function MyEventsPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   const email = session?.user.email;
-  const res = await fetch(`${process.env.BACKEND_SERVER_URI}/myEvents/${email}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/myEvents/${email}`, {
     next: { revalidate: 60 }
   });
   const events = await res.json() as IEvent[];

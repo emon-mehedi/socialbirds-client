@@ -13,7 +13,7 @@ export default async function EventDetailsPage({
   const { id } = await params;
   console.log(id);
 
-  const res= await fetch(`${process.env.BACKEND_SERVER_URI}/events/${id}`,{
+  const res= await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/events/${id}`,{
     cache: "force-cache"
   });
   const event = await res.json();

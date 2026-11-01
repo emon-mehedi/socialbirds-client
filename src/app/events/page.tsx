@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { IEvent } from "@/components/types";
 
 export default async function EventsPage() {
-  const res = await fetch(`${process.env.BACKEND_SERVER_URI}/events`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/events`, {
     next: { revalidate: 60 }
   });
   const events = await res.json() as IEvent[];

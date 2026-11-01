@@ -35,7 +35,7 @@ const stories = [
 ];
 
 export default async function HomePage() {
-  const res = await fetch(`${process.env.BACKEND_SERVER_URI}/events`, { next: { revalidate: 60 } });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/events`, { next: { revalidate: 60 } });
   const events: IEvent[] = await res.json();
   const upcomingEvents = events.slice(0, 6);
 

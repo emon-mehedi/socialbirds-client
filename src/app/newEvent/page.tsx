@@ -17,7 +17,7 @@ export default function NewEventPage() {
     const newEvent ={...createdEvent, email:session?.user.email}
     console.log('before submit',newEvent);
 
-    const res= await fetch(`${process.env.BACKEND_SERVER_URI}/events`,{
+    const res= await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/events`,{
       method:'POST',
       headers:{
         'Content-Type': 'application/json'
@@ -26,7 +26,7 @@ export default function NewEventPage() {
     });
 
     //optional
-    console.log("backend is", `${process.env.BACKEND_SERVER_URI}/events`);
+    console.log("backend is", `${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/events`);
     console.log('resonse from server', res);
     const afterSubmit= await res.json();
     console.log('after submit', afterSubmit);

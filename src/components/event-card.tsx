@@ -8,14 +8,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatDate } from "@/lib/placeholder-data";
 import { IEvent } from "./types";
 
 // Reusable card. Pass it one event: <EventCard event={event} />
 export default function EventCard({ event }: { event: IEvent }) {
   return (
-    <Link href={`/events/${event._id}`} className="block h-full">
-      <Card className="h-full gap-0 overflow-hidden py-0 transition-shadow hover:shadow-lg">
+    <div className="h-full flex flex-col">
+      <Card className="h-full gap-0 overflow-hidden py-0 transition-shadow hover:shadow-lg flex flex-col">
         {/* Thumbnail */}
         <div className="relative aspect-[16/10] bg-slate-100">
           <img
@@ -24,7 +23,7 @@ export default function EventCard({ event }: { event: IEvent }) {
             className="h-full w-full object-cover"
           />
           <Badge className="absolute left-3 top-3 bg-white text-emerald-700 hover:bg-white">
-            {event.eventType}
+            {event.category}
           </Badge>
         </div>
 
@@ -44,10 +43,13 @@ export default function EventCard({ event }: { event: IEvent }) {
           </p>
           <p className="flex items-center gap-2">
             <FiCalendar className="shrink-0 text-emerald-600" />
-            {formatDate(event.eventDate)}
+            {(event.date)}
           </p>
         </CardContent>
+        <div className="p-4 pt-0 mt-auto">
+          <Link href={`/events/${event._id}`} className="inline-block w-full text-center rounded-md bg-emerald-600 text-white px-4 py-2 text-sm hover:bg-emerald-700">View</Link>
+        </div>
       </Card>
-    </Link>
+    </div>
   );
 }

@@ -38,8 +38,11 @@ const NavBetterAuth = () => {
                 ▼</div>
               <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-4 shadow-sm">
                 <li>{session.user.name}<br></br>{session.user.email}</li>
-                <li className='hover:bg-base-200'><Link href={'/profile'}><ImUser /><span>My Profile</span></Link></li>
-                <li className='hover:bg-base-200 text-red-600'><Link href={'/signIn'} onClick={() => signOut()}><PiArrowBendDownLeft /> <span>Sign Out</span></Link></li>
+                <li className='hover:bg-base-200' onClick={() => (document.activeElement as HTMLElement)?.blur()}><Link href={'/profile'}><ImUser /><span>My Profile</span></Link></li>
+                <li className='hover:bg-base-200' onClick={() => (document.activeElement as HTMLElement)?.blur()}><Link href={'/newEvent'}><ImUser /><span>Create Event</span></Link></li>
+                <li className='hover:bg-base-200' onClick={() => (document.activeElement as HTMLElement)?.blur()}><Link href={'/myEvents'}><ImUser /><span>Manage Events</span></Link></li>
+                <li className='hover:bg-base-200' onClick={() => (document.activeElement as HTMLElement)?.blur()}><Link href={'/joinedEvents'}><ImUser /><span>Joined Events</span></Link></li>
+                <li className='hover:bg-base-200 text-red-600' onClick={() => (document.activeElement as HTMLElement)?.blur()}><Link href={'/signIn'} onClick={() => signOut()}><PiArrowBendDownLeft /> <span>Sign Out</span></Link></li>
               </ul>
             </div>
 

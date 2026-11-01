@@ -1,32 +1,6 @@
-// PLACEHOLDER DATA - delete this file once you fetch events from your database.
-// Your database rows should have the same fields as the Event type below.
 
-export type Event = {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  thumbnailUrl: string;
-  location: string;
-  date: string; // e.g. "2026-11-05"
-};
 
-export const categories = [
-  "Blanket Distribution",
-  "Tree Plantation",
-  "Food Distribution",
-  "Home Building",
-  "Anti-Corruption Awareness",
-  "Cleanup Drive",
-];
 
-export function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 export const sampleEvents: Event[] = [
   {

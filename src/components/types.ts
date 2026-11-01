@@ -2,8 +2,9 @@ export interface IEvent {
   _id: string,
   title: string,
   description: string,
-  eventType: string,
+  category: string,
   thumbnailImageUrl: string,
   location: string,
-  eventDate: string
+  date: string,
+  email:string
 }

@@ -1,10 +1,9 @@
 'use client'
+import { categories } from "@/components/categories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useSession } from "@/lib/auth-client";
-import { categories } from "@/lib/placeholder-data";
-import { email } from "better-auth";
 import { redirect } from "next/navigation";
 
 
@@ -18,7 +17,7 @@ export default function NewEventPage() {
     const newEvent ={...createdEvent, email:session?.user.email}
     console.log('before submit',newEvent);
 
-    const res= await fetch(`http://localhost:5000/events`,{
+    const res= await fetch(`${process.env.BACKEND_SERVER_URI}/events`,{
       method:'POST',
       headers:{
         'Content-Type': 'application/json'
@@ -75,7 +74,7 @@ export default function NewEventPage() {
           </div>
           <div className="space-y-1.5">
             <label htmlFor="date" className="text-sm font-medium">Date</label>
-            <Input id="eventDate" name="eventDate" type="date" />
+            <Input id="date" name="date" type="date" />
           </div>
         </div>
 

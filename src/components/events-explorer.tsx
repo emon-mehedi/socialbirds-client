@@ -5,11 +5,10 @@ import { FiSearch } from "react-icons/fi";
 import EventCard from "./event-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { categories } from "@/lib/placeholder-data";
 import { IEvent } from "./types";
+import { categories } from "./categories";
 
-// Shows the search bar, the category pills and the grid of events.
-// The events come in as a prop, so the page can fetch them from your database.
+
 export default function EventsExplorer({ events }: { events: IEvent[] }) {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchText, setSearchText] = useState("");
@@ -17,7 +16,7 @@ export default function EventsExplorer({ events }: { events: IEvent[] }) {
   // Keep only the events that match the chosen pill and the search text
   const filteredEvents = events.filter((event) => {
     const matchesCategory =
-      selectedCategory === "All" || event.eventType === selectedCategory;
+      selectedCategory === "All" || event.category === selectedCategory;
     const matchesSearch = (event.title + event.location)
       .toLowerCase()
       .includes(searchText.toLowerCase());

@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { FiArrowLeft, FiCalendar, FiMapPin, FiUserPlus } from "react-icons/fi";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatDate } from "@/lib/placeholder-data";
 
 
 export default async function EventDetailsPage({
@@ -41,7 +40,7 @@ export default async function EventDetailsPage({
         {/* Right: date, location and join button */}
         <aside className="h-fit rounded-2xl border p-6">
           <ul className="space-y-4 text-sm">
-            <li className="flex gap-3"><FiCalendar className="mt-0.5 text-lg text-emerald-600" /> {formatDate(event.date)}</li>
+            <li className="flex gap-3"><FiCalendar className="mt-0.5 text-lg text-emerald-600" /> {(event.date)}</li>
             <li className="flex gap-3"><FiMapPin className="mt-0.5 text-lg text-emerald-600" /> {event.location}</li>
           </ul>
           <Button size="lg" className="mt-6 w-full bg-emerald-700 text-white hover:bg-emerald-800">

@@ -51,10 +51,10 @@ export default function HomePage() {
             Find the next event, or start your own and invite your community.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild size="lg" className="bg-emerald-700 text-white hover:bg-emerald-800">
+            <Button size="lg" className="bg-emerald-700 text-white hover:bg-emerald-800">
               <Link href="/events"><FiCompass /> Explore all events</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-emerald-700 text-emerald-700">
+            <Button size="lg" variant="outline" className="border-emerald-700 text-emerald-700">
               <Link href="/newEvent"><FiPlus /> Create new event</Link>
             </Button>
           </div>
@@ -108,7 +108,7 @@ export default function HomePage() {
         </div>
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {upcomingEvents.map((event) => (
-            <EventCard key={event.id} event={event} />
+            <EventCard key={event._id} event={event as any} />
           ))}
         </div>
       </section>

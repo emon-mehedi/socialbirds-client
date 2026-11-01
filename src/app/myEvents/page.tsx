@@ -6,6 +6,8 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import MyEventsExplorer from "@/components/my-events-explorer";
 
+export const dynamic = 'force-dynamic';
+
 export default async function MyEventsPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   const email = session?.user.email;
@@ -25,7 +27,7 @@ export default async function MyEventsPage() {
           <h1 className="text-4xl font-extrabold text-emerald-800">Find an event to join</h1>
           <p className="mt-2 text-slate-600">Pick a type of help, search by place, and open any event for details.</p>
         </div>
-        <Button asChild size="lg" className="bg-emerald-700 text-white hover:bg-emerald-800">
+        <Button size="lg" className="bg-emerald-700 text-white hover:bg-emerald-800">
           <Link href="/newEvent"><FiPlus /> Create new event</Link>
         </Button>
       </div>

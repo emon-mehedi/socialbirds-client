@@ -1,0 +1,4 @@
+- Next.js 16 / React 19 / Tailwind v4. Commands: `npm run dev`, `npm run build`, `npm run lint`.
+- shadcn/ui components in `components/ui/`; don't regenerate blindly.
+- TypeScript 5 + strict config (`tsconfig.json`). Type-check before committing.
+- Use `lucide-react`/`react-icons` for icons; `cn` utility for class merging.

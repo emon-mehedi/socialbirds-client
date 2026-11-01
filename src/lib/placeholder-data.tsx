@@ -1,0 +1,104 @@
+// PLACEHOLDER DATA - delete this file once you fetch events from your database.
+// Your database rows should have the same fields as the Event type below.
+
+export type Event = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  thumbnailUrl: string;
+  location: string;
+  date: string; // e.g. "2026-11-05"
+};
+
+export const categories = [
+  "Blanket Distribution",
+  "Tree Plantation",
+  "Food Distribution",
+  "Home Building",
+  "Anti-Corruption Awareness",
+  "Cleanup Drive",
+];
+
+export function formatDate(date: string) {
+  return new Date(date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+export const sampleEvents: Event[] = [
+  {
+    id: "1",
+    title: "Winter Blanket Drive",
+    description: "Pack and hand out warm blankets to families sleeping outdoors as the cold nights set in.",
+    category: "Blanket Distribution",
+    thumbnailUrl: "https://picsum.photos/seed/blanket/800/500",
+    location: "Central Community Hall, Rangpur",
+    date: "2026-11-05",
+  },
+  {
+    id: "2",
+    title: "Riverside Tree Planting",
+    description: "Plant 500 native saplings along the riverbank to hold the soil and bring shade back.",
+    category: "Tree Plantation",
+    thumbnailUrl: "https://picsum.photos/seed/trees/800/500",
+    location: "Ghaghat River Bank, Rangpur",
+    date: "2026-11-08",
+  },
+  {
+    id: "3",
+    title: "Hot Meals for 300",
+    description: "Cook and serve hot meals to day laborers and street families.",
+    category: "Food Distribution",
+    thumbnailUrl: "https://picsum.photos/seed/meals/800/500",
+    location: "Station Road Market, Rangpur",
+    date: "2026-11-12",
+  },
+  {
+    id: "4",
+    title: "Build a Home Weekend",
+    description: "Two days of bricklaying and roofing to finish a safe house for a family who lost theirs in the floods.",
+    category: "Home Building",
+    thumbnailUrl: "https://picsum.photos/seed/home/800/500",
+    location: "Mithapukur, Rangpur",
+    date: "2026-11-15",
+  },
+  {
+    id: "5",
+    title: "Say No to Corruption Rally",
+    description: "A peaceful walk and street talk on reporting bribery and knowing your rights.",
+    category: "Anti-Corruption Awareness",
+    thumbnailUrl: "https://picsum.photos/seed/rally/800/500",
+    location: "Rangpur Press Club",
+    date: "2026-11-20",
+  },
+  {
+    id: "6",
+    title: "Canal Cleanup Morning",
+    description: "Clear plastic and waste from the neighborhood canal before the rains.",
+    category: "Cleanup Drive",
+    thumbnailUrl: "https://picsum.photos/seed/canal/800/500",
+    location: "Dhap Canal, Rangpur",
+    date: "2026-11-24",
+  },
+  {
+    id: "7",
+    title: "School Tree Day",
+    description: "Help students plant and name a tree on their school grounds.",
+    category: "Tree Plantation",
+    thumbnailUrl: "https://picsum.photos/seed/school/800/500",
+    location: "Model Govt. Primary School, Rangpur",
+    date: "2026-11-28",
+  },
+  {
+    id: "8",
+    title: "Sweater Collection Point",
+    description: "Drop off gently used sweaters and blankets, or help us sort them.",
+    category: "Blanket Distribution",
+    thumbnailUrl: "https://picsum.photos/seed/sweaters/800/500",
+    location: "Town Hall Square, Rangpur",
+    date: "2026-12-02",
+  },
+];

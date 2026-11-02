@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { FiCalendar, FiMapPin } from "react-icons/fi";
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IEvent } from "./types";
+import { getToken } from "@/lib/get-token";
 
 export default function MyEventCard({ event }: { event: IEvent }) {
   const [open, setOpen] = useState(false);
@@ -19,20 +21,28 @@ export default function MyEventCard({ event }: { event: IEvent }) {
   const [deleted, setDeleted] = useState(false);
 
   const handleDelete = async () => {
-    await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/events/${eventData._id}`, {
+    const token = await getToken();
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/events/${eventData._id}`, {
       method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
     });
-    setDeleted(true);
+    if (res.ok) setDeleted(true);
   };
 
   const handleEdit = async () => {
-    await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/events/${eventData._id}`, {
+    const token = await getToken();
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/events/${eventData._id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(form),
     });
-    setEventData({ ...form });
-    setOpen(false);
+    if (res.ok) {
+      setEventData({ ...form });
+      setOpen(false);
+    }
   };
 
   if (deleted) return null;

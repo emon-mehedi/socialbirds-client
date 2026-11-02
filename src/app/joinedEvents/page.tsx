@@ -4,24 +4,27 @@ import { Button } from "@/components/ui/button";
 import { IEvent } from "@/components/types";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { getToken } from "@/lib/get-token";
 import EventsExplorer from "@/components/events-explorer";
 
 export const dynamic = 'force-dynamic';
 
-export default async function MyEventsPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  const email = session?.user.email;
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/joinedEvents/${email}`, {
-    next: { revalidate: 60 }
+export default async function JoinedEventsPage() {
+  const requestHeaders = await headers();
+  const session = await auth.api.getSession({ headers: requestHeaders });
+  if (!session) redirect('/signIn');
+
+  const token = await getToken();
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/joinedEvents`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store', // so a newly joined/cancelled event shows up right away
   });
   const events = await res.json() as IEvent[];
-  console.log(res);
-
-  
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      {/* Create event button */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-4xl font-extrabold text-emerald-800">Joined Events</h1>
@@ -32,7 +35,6 @@ export default async function MyEventsPage() {
         </Button>
       </div>
 
-      {/* Search + pills + grid */}
       <div className="mt-10">
         <EventsExplorer events={events} />
       </div>

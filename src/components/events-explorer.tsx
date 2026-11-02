@@ -9,7 +9,7 @@ import { IEvent } from "./types";
 import { categories } from "./categories";
 
 
-export default function EventsExplorer({ events }: { events: IEvent[] }) {
+export default function EventsExplorer({ events = [] }: { events?: IEvent[] }) {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchText, setSearchText] = useState("");
 

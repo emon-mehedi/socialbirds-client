@@ -4,20 +4,24 @@ import { Button } from "@/components/ui/button";
 import { IEvent } from "@/components/types";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { getToken } from "@/lib/get-token";
 import MyEventsExplorer from "@/components/my-events-explorer";
 
 export const dynamic = 'force-dynamic';
 
 export default async function MyEventsPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  const email = session?.user.email;
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/myEvents/${email}`, {
-    next: { revalidate: 60 }
+  const requestHeaders = await headers();
+  const session = await auth.api.getSession({ headers: requestHeaders });
+  if (!session) redirect('/signIn');
+
+  const token = await getToken();
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/myEvents`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
   });
   const events = await res.json() as IEvent[];
-  console.log(res);
-
-  
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">

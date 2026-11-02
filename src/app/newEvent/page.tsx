@@ -3,37 +3,32 @@ import { categories } from "@/components/categories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useSession } from "@/lib/auth-client";
-import { redirect } from "next/navigation";
+import { getToken } from "@/lib/get-token";
+import { useRouter } from "next/navigation";
 
 
 export default function NewEventPage() {
+  const router = useRouter();
 
-  const {data: session}= useSession();
   const onSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const createdEvent = Object.fromEntries(formData.entries());
-    const newEvent ={...createdEvent, email:session?.user.email}
-    console.log('before submit',newEvent);
+    const newEvent = Object.fromEntries(formData.entries());
 
+    const token = await getToken();
     const res= await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/events`,{
       method:'POST',
       headers:{
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`   // NEW
       },
       body: JSON.stringify(newEvent)
     });
 
-    //optional
-    console.log("backend is", `${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/events`);
-    console.log('resonse from server', res);
     const afterSubmit= await res.json();
-    console.log('after submit', afterSubmit);
-    if (afterSubmit.insertedId)//insertedId is the _id given by mongoDb
+    if (afterSubmit.insertedId) //insertedId is the _id given by mongoDb
       {
-        console.log("User added successfully");
-        redirect('/');
+        router.push('/');
       }
 
   };

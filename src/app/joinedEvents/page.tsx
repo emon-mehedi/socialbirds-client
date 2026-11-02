@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { IEvent } from "@/components/types";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import MyEventsExplorer from "@/components/my-events-explorer";
+import EventsExplorer from "@/components/events-explorer";
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +24,7 @@ export default async function MyEventsPage() {
       {/* Create event button */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-4xl font-extrabold text-emerald-800">Find an event to join</h1>
+          <h1 className="text-4xl font-extrabold text-emerald-800">Joined Events</h1>
           <p className="mt-2 text-slate-600">Pick a type of help, search by place, and open any event for details.</p>
         </div>
         <Button size="lg" className="bg-emerald-700 text-white hover:bg-emerald-800">
@@ -34,7 +34,7 @@ export default async function MyEventsPage() {
 
       {/* Search + pills + grid */}
       <div className="mt-10">
-        <MyEventsExplorer events={events} />
+        <EventsExplorer events={events} />
       </div>
     </div>
   );

@@ -41,7 +41,7 @@ export default async function HomePage() {
   return (
     <>
       {/* 1. Hero / banner */}
-      <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 md:grid-cols-2 md:py-24">
+      <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-15 md:grid-cols-2 md:py-24">
         <div>
           <h1 className="text-4xl font-extrabold leading-tight text-brand sm:text-6xl">
             Small acts, done together, change a whole neighborhood.

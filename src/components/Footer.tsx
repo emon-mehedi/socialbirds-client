@@ -56,8 +56,8 @@ export default function Footer() {
         <div>
           <h3 className="font-semibold text-white">Contact</h3>
           <ul className="mt-4 space-y-3 text-sm">
-            <li className="flex items-center gap-2"><FiMail /> hello@socialbirds.org</li>
-            <li className="flex items-center gap-2"><FiMapPin /> Rangpur, Bangladesh</li>
+            <li className="flex items-center gap-3"><FiMail /> hello@socialbirds.org</li>
+            <li className="flex items-center gap-3"><FiMapPin /> Rangpur, Bangladesh</li>
           </ul>
         </div>
       </div>

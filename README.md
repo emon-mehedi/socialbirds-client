@@ -1,6 +1,6 @@
 # SocialBirds 🐦
 
-**Live site:**
+**Live site:** https://socialbirds-client-l.vercel.app
 
 SocialBirds is a community platform where neighbors can **create**, **join** and **track** social service events in their local area — blanket drives, tree plantations, food distribution, clean-up drives and more.
 

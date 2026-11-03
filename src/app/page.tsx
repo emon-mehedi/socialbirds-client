@@ -1,14 +1,14 @@
 import Link from "next/link";
 import {
-  FiBell, FiCalendar, FiCheckCircle, FiCompass, FiEdit3, FiGlobe,
-  FiHeart, FiMapPin, FiMousePointer, FiPlus, FiTrendingUp, FiUsers,
+  FiCalendar, FiCheckCircle, FiCompass, FiEdit3, FiGlobe, FiHeart,
+  FiMapPin, FiMousePointer, FiPlus, FiSettings, FiTrendingUp, FiUsers, FiBell,
 } from "react-icons/fi";
 import EventCard from "@/components/event-card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { IEvent } from "@/components/types";
+import NewsletterForm from "@/components/newsletter-form";
+import { buttonVariants } from "@/components/ui/button";
+import { fetchUpcomingEvents } from "@/lib/api";
 
-// Static content for the stats, features and stories sections
+// Static content for the stats, features and gallery sections
 const stats = [
   { icon: FiUsers, value: "12,500+", label: "Active members" },
   { icon: FiCheckCircle, value: "1,840", label: "Events completed" },
@@ -19,10 +19,10 @@ const stats = [
 const features = [
   { icon: FiMousePointer, title: "One-click participation", text: "Join any event with a single tap. No forms, no phone calls." },
   { icon: FiCalendar, title: "Upcoming-only discovery", text: "See only what is still ahead, sorted by the nearest date." },
-  { icon: FiMapPin, title: "Find help close to home", text: "Browse by neighborhood so you can walk or ride to the event." },
+  { icon: FiMapPin, title: "Find help close to home", text: "Search by neighborhood so you can walk or ride to the event." },
   { icon: FiEdit3, title: "Create in minutes", text: "Add a title, place, date and photo, and your event is live." },
   { icon: FiTrendingUp, title: "Track your impact", text: "Keep a record of the events you joined and the people you reached." },
-  { icon: FiBell, title: "Local alerts", text: "Get a short email when a new event is planned in your area." },
+  { icon: FiSettings, title: "Manage your events", text: "Edit the details or delete your event any time from one page." },
 ];
 
 const stories = [
@@ -35,36 +35,40 @@ const stories = [
 ];
 
 export default async function HomePage() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/events`, { next: { revalidate: 60 } });
-  const events: IEvent[] = await res.json();
-  const upcomingEvents = events.slice(0, 6);
+  // The server sorts by date and sends only the 6 nearest upcoming events (MongoDB .limit(6))
+  const { events: upcomingEvents, failed } = await fetchUpcomingEvents(6);
 
   return (
     <>
-      {/* 1. Hero */}
+      {/* 1. Hero / banner */}
       <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 md:grid-cols-2 md:py-24">
         <div>
-          <h1 className="text-4xl font-extrabold leading-tight text-emerald-800 sm:text-6xl">
+          <h1 className="text-4xl font-extrabold leading-tight text-brand sm:text-6xl">
             Small acts, done together, change a whole neighborhood.
           </h1>
-          <p className="mt-6 max-w-lg text-lg text-slate-600">
+          <p className="mt-6 max-w-lg text-lg text-muted-foreground">
             Join a blanket drive, plant a tree, serve a meal or build a home.
             Find the next event, or start your own and invite your community.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button size="lg" className="bg-emerald-700 text-white hover:bg-emerald-800">
-              <Link href="/events"><FiCompass /> Explore all events</Link>
-            </Button>
-            <Button size="lg" variant="outline" className="border-emerald-700 text-emerald-700">
-              <Link href="/newEvent"><FiPlus /> Create new event</Link>
-            </Button>
+            <Link href="/events" className={buttonVariants({ size: "lg", className: "h-11 px-5 text-base" })}>
+              <FiCompass /> Explore all events
+            </Link>
+            <Link href="/newEvent" className={buttonVariants({ variant: "outline", size: "lg", className: "h-11 px-5 text-base" })}>
+              <FiPlus /> Create new event
+            </Link>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <img src="https://picsum.photos/seed/hero1/500/500" alt="" className="aspect-square w-full rounded-3xl object-cover" />
-          <img src="https://picsum.photos/seed/hero2/500/500" alt="" className="mt-8 aspect-square w-full rounded-3xl object-cover" />
-          <img src="https://picsum.photos/seed/hero3/500/500" alt="" className="aspect-square w-full rounded-3xl object-cover" />
-          <img src="https://picsum.photos/seed/hero4/500/500" alt="" className="mt-8 aspect-square w-full rounded-3xl object-cover" />
+          {[1, 2, 3, 4].map((n) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={n}
+              src={`https://picsum.photos/seed/hero${n}/500/500`}
+              alt="Community event photo"
+              className={`aspect-square w-full rounded-3xl bg-muted object-cover ${n % 2 === 0 ? "mt-8" : ""}`}
+            />
+          ))}
         </div>
       </section>
 
@@ -83,64 +87,75 @@ export default async function HomePage() {
 
       {/* 3. Platform features */}
       <section id="features" className="mx-auto max-w-6xl px-4 pt-24">
-        <h2 className="text-3xl font-bold sm:text-4xl">Everything you need to show up and help</h2>
+        <h2 className="text-3xl font-bold text-brand sm:text-4xl">Everything you need to show up and help</h2>
         <div className="mt-10 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {features.map(({ icon: Icon, title, text }) => (
             <div key={title} className="flex gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-xl text-emerald-700">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-xl text-brand">
                 <Icon />
               </span>
               <div>
                 <h3 className="font-semibold">{title}</h3>
-                <p className="mt-1 text-sm text-slate-600">{text}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{text}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* 4. Upcoming events (6 in a grid) */}
+      {/* 4. Recent upcoming events (6 in a grid, from the database) */}
       <section className="mx-auto max-w-6xl px-4 pt-24">
-        <div className="flex items-end justify-between">
-          <h2 className="text-3xl font-bold sm:text-4xl">Happening soon</h2>
-          <Link href="/events" className="text-sm font-semibold text-emerald-700 hover:underline">
+        <div className="flex items-end justify-between gap-4">
+          <h2 className="text-3xl font-bold text-brand sm:text-4xl">Recent upcoming events</h2>
+          <Link href="/events" className="shrink-0 text-sm font-semibold text-primary hover:underline">
             See all events
           </Link>
         </div>
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {upcomingEvents.map((event) => (
-            <EventCard key={event._id} event={event as any} />
-          ))}
-        </div>
+
+        {upcomingEvents.length > 0 ? (
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {upcomingEvents.map((event) => (
+              <EventCard key={event._id} event={event} />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-8 rounded-2xl border bg-card p-10 text-center text-muted-foreground">
+            {failed
+              ? "We could not load the events right now. Please refresh the page in a moment."
+              : "No upcoming events yet. Be the first to create one!"}
+          </div>
+        )}
       </section>
 
-      {/* 5. Visual stories (6 photos) */}
+      {/* 5. Gallery (static photos) */}
       <section id="stories" className="mx-auto max-w-6xl px-4 pt-24">
-        <h2 className="text-3xl font-bold sm:text-4xl">What your neighbors have already done</h2>
+        <h2 className="text-3xl font-bold text-brand sm:text-4xl">What your neighbors have already done</h2>
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {stories.map((story) => (
-            <figure key={story.title} className="overflow-hidden rounded-2xl border bg-white">
-              <img src={story.image} alt={story.title} className="aspect-[4/3] w-full object-cover" />
+            <figure key={story.title} className="overflow-hidden rounded-2xl border bg-card">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={story.image} alt={story.title} className="aspect-[4/3] w-full bg-muted object-cover" />
               <figcaption className="p-4">
                 <p className="font-semibold">{story.title}</p>
-                <p className="mt-2 flex items-center gap-2 text-sm text-slate-600"><FiMapPin className="text-emerald-600" /> {story.location}</p>
-                <p className="mt-1 flex items-center gap-2 text-sm text-slate-600"><FiCalendar className="text-emerald-600" /> {story.date}</p>
+                <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                  <FiMapPin className="text-primary" /> {story.location}
+                </p>
+                <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                  <FiCalendar className="text-primary" /> {story.date}
+                </p>
               </figcaption>
             </figure>
           ))}
         </div>
       </section>
 
-      {/* 6. Subscribe to local alerts (static) */}
+      {/* 6. Newsletter */}
       <section className="mx-auto max-w-6xl px-4 pt-24">
-        <div className="rounded-3xl bg-amber-400 px-6 py-12 text-center sm:px-12">
+        <div className="rounded-3xl bg-amber-400 px-6 py-12 text-center text-slate-900 sm:px-12">
           <FiBell className="mx-auto text-3xl" />
           <h2 className="mt-3 text-3xl font-bold">Subscribe to local alerts</h2>
           <p className="mt-2">One short email when someone plans an event near you.</p>
-          <div className="mx-auto mt-6 flex max-w-md flex-col gap-2 sm:flex-row">
-            <Input type="email" placeholder="you@example.com" className="h-11 bg-white" />
-            <Button className="h-11 bg-slate-900 text-white hover:bg-slate-800">Subscribe</Button>
-          </div>
+          <NewsletterForm />
         </div>
       </section>
     </>

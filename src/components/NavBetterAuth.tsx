@@ -1,59 +1,94 @@
-'use client'
-import { signOut, useSession } from '@/lib/auth-client';
-import { Spinner } from '@heroui/react';
-import Image from 'next/image';
-import Link from 'next/link';
-import React from 'react';
-import { ImUser } from 'react-icons/im';
-import { PiArrowBendDownLeft } from 'react-icons/pi';
+"use client";
+
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { FiCalendar, FiLogOut, FiPlusCircle, FiSettings, FiUser } from "react-icons/fi";
+import { signOut, useSession } from "@/lib/auth-client";
+import { Skeleton } from "@/components/ui/skeleton";
+import { buttonVariants } from "@/components/ui/button";
+
+// Pages that need a logged in user
+const privatePages = ["/newEvent", "/myEvents", "/joinedEvents", "/profile"];
 
 const NavBetterAuth = () => {
   const { data: session, isPending } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleLogout = async () => {
+    await signOut();
+    toast.success("Logged out successfully");
+    // on a private page we go to login, otherwise to home
+    router.push(privatePages.includes(pathname) ? "/signIn" : "/");
+  };
+
+  const closeDropdown = () => (document.activeElement as HTMLElement)?.blur();
+
   if (isPending) {
-    return (
-      <div className='flex flex-col items-center gap-2'>
-        <Spinner size='xl' />
-        <span className='text-xs text-muted'>Loading...</span>
-      </div>
-    )
+    return <Skeleton className="h-9 w-24" />;
   }
 
+  if (!session?.user) {
+    return (
+      <div className="flex items-center gap-2">
+        <Link href="/signIn" className={buttonVariants({ variant: "ghost", size: "lg" })}>
+          Login
+        </Link>
+        <Link href="/signUp" className={buttonVariants({ size: "lg" })}>
+          Register
+        </Link>
+      </div>
+    );
+  }
+
+  const user = session.user;
+
   return (
-    <>
-      {
-        session?.user
-          ? <div className='flex flex-row gap-2 items-center'>
-
-
-            <div className="dropdown dropdown-end">
-              <div tabIndex={0} role="button" className="btn m-1">
-                                     {/* Avatar */}
-                {session.user.image 
-                  ? <Image src={session.user.image} alt={session.user.name || "User"} width={8} height={8} className="w-8 h-8 rounded-xl object-cover"/>
-                  : <div className="w-8 h-8 rounded-xl bg-primary text-primary-content flex items-center justify-center font-bold">
-                      {session.user.name?.charAt(0).toUpperCase() || "?"}
-                    </div>
-                }
-                <span>{session.user.name}</span>
-                ▼</div>
-              <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-4 shadow-sm">
-                <li>{session.user.name}<br></br>{session.user.email}</li>
-                <li className='hover:bg-base-200' onClick={() => (document.activeElement as HTMLElement)?.blur()}><Link href={'/profile'}><ImUser /><span>My Profile</span></Link></li>
-                <li className='hover:bg-base-200' onClick={() => (document.activeElement as HTMLElement)?.blur()}><Link href={'/newEvent'}><ImUser /><span>Create Event</span></Link></li>
-                <li className='hover:bg-base-200' onClick={() => (document.activeElement as HTMLElement)?.blur()}><Link href={'/myEvents'}><ImUser /><span>Manage Events</span></Link></li>
-                <li className='hover:bg-base-200' onClick={() => (document.activeElement as HTMLElement)?.blur()}><Link href={'/joinedEvents'}><ImUser /><span>Joined Events</span></Link></li>
-                <li className='hover:bg-base-200 text-red-600' onClick={() => (document.activeElement as HTMLElement)?.blur()}><Link href={'/signIn'} onClick={() => signOut()}><PiArrowBendDownLeft /> <span>Sign Out</span></Link></li>
-              </ul>
-            </div>
-
+    <div className="flex items-center gap-2">
+      <div className="dropdown dropdown-end">
+        {/* Profile picture. Hovering it shows the display name (daisyUI tooltip) */}
+        <div className="tooltip tooltip-bottom" data-tip={user.name}>
+          <div tabIndex={0} role="button" aria-label="Open profile menu" className="block rounded-full">
+            {user.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.image}
+                alt={user.name || "User"}
+                referrerPolicy="no-referrer"
+                className="size-9 rounded-full border object-cover"
+              />
+            ) : (
+              <div className="flex size-9 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">
+                {user.name?.charAt(0).toUpperCase() || "?"}
+              </div>
+            )}
           </div>
-          : <div className="flex flex-row gap-2 justify-center items-center">
-            <Link href={'/signIn'}><button>Sign In</button></Link>
-            <Link href={'/signUp'}><button className='btn btn-sm bg-emerald-700 text-white'>Sign Up</button></Link>
-          </div>
+        </div>
 
-      }
-    </>
+        <ul
+          tabIndex={-1}
+          onClick={closeDropdown}
+          className="dropdown-content menu z-50 mt-2 w-56 rounded-box border bg-base-100 p-2 shadow-lg"
+        >
+          <li className="menu-title normal-case">
+            <span className="block truncate text-sm font-semibold text-base-content">{user.name}</span>
+            <span className="block truncate text-xs font-normal">{user.email}</span>
+          </li>
+          <li><Link href="/profile"><FiUser /> My Profile</Link></li>
+          <li><Link href="/newEvent"><FiPlusCircle /> Create Event</Link></li>
+          <li><Link href="/myEvents"><FiSettings /> Manage Events</Link></li>
+          <li><Link href="/joinedEvents"><FiCalendar /> Joined Events</Link></li>
+        </ul>
+      </div>
+
+      <button
+        onClick={handleLogout}
+        className={buttonVariants({ variant: "outline", size: "lg" })}
+      >
+        <FiLogOut /> <span className="hidden sm:inline">Logout</span>
+      </button>
+    </div>
   );
 };
 

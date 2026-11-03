@@ -1,34 +1,34 @@
 import Link from "next/link";
 import { FiPlus } from "react-icons/fi";
 import EventsExplorer from "@/components/events-explorer";
-import { Button } from "@/components/ui/button";
-import { IEvent } from "@/components/types";
+import { buttonVariants } from "@/components/ui/button";
+import { fetchUpcomingEvents } from "@/lib/api";
 
 export default async function EventsPage() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/events`, {
-    next: { revalidate: 60 }
-  });
-  const events = await res.json() as IEvent[];
-  console.log(res);
-
-  
+  const { events, failed } = await fetchUpcomingEvents();
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      {/* Create event button */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-4xl font-extrabold text-emerald-800">Find an event to join</h1>
-          <p className="mt-2 text-slate-600">Pick a type of help, search by place, and open any event for details.</p>
+          <h1 className="text-4xl font-extrabold text-brand">Upcoming Events</h1>
+          <p className="mt-2 text-muted-foreground">
+            Pick a type of help, search by place, and open any event for details.
+          </p>
         </div>
-        <Button size="lg" className="bg-emerald-700 text-white hover:bg-emerald-800">
-          <Link href="/newEvent"><FiPlus /> Create new event</Link>
-        </Button>
+        <Link href="/newEvent" className={buttonVariants({ size: "lg", className: "h-10" })}>
+          <FiPlus /> Create new event
+        </Link>
       </div>
 
-      {/* Search + pills + grid */}
       <div className="mt-10">
-        <EventsExplorer events={events} />
+        {failed ? (
+          <p className="mt-12 text-center text-muted-foreground">
+            We could not load the events right now. Please refresh the page in a moment.
+          </p>
+        ) : (
+          <EventsExplorer events={events} emptyMessage="No upcoming events yet. Be the first to create one!" />
+        )}
       </div>
     </div>
   );

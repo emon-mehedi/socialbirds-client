@@ -1,82 +1,51 @@
-'use client'
-import { categories } from "@/components/categories";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { getToken } from "@/lib/get-token";
-import { useRouter } from "next/navigation";
+"use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import EventForm from "@/components/event-form";
+import PrivateRoute from "@/components/PrivateRoute";
+import { authFetch } from "@/lib/auth-fetch";
+import type { EventValues } from "@/lib/validation";
 
 export default function NewEventPage() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-  const onSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const newEvent = Object.fromEntries(formData.entries());
+  const handleCreate = async (values: EventValues) => {
+    setLoading(true);
+    try {
+      // the server adds the creator's email from the token
+      const res = await authFetch("/events", {
+        method: "POST",
+        body: JSON.stringify(values),
+      });
+      const data = await res.json();
 
-    const token = await getToken();
-    const res= await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URI}/events`,{
-      method:'POST',
-      headers:{
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`   // NEW
-      },
-      body: JSON.stringify(newEvent)
-    });
-
-    const afterSubmit= await res.json();
-    if (afterSubmit.insertedId) //insertedId is the _id given by mongoDb
-      {
-        router.push('/');
+      if (!res.ok) {
+        toast.error(data.message || "Could not create the event");
+        return;
       }
 
+      toast.success("Event created successfully!");
+      router.push("/events");
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="text-4xl font-extrabold text-emerald-800">Create an event</h1>
-      <p className="mt-2 text-slate-600">Tell people what you are planning and where to meet.</p>
+    <PrivateRoute>
+      <div className="mx-auto max-w-2xl px-4 py-12">
+        <h1 className="text-4xl font-extrabold text-brand">Create an event</h1>
+        <p className="mt-2 text-muted-foreground">Tell people what you are planning and where to meet.</p>
 
-      <form className="mt-8 space-y-5 rounded-2xl border p-6" onSubmit={onSubmit}>
-        <div className="space-y-1.5">
-          <label htmlFor="title" className="text-sm font-medium">Title</label>
-          <Input id="title" name="title" placeholder="Winter blanket drive" />
+        <div className="mt-8 rounded-2xl border bg-card p-6">
+          <EventForm submitLabel="Publish event" loading={loading} onSubmit={handleCreate} />
         </div>
-
-        <div className="space-y-1.5">
-          <label htmlFor="description" className="text-sm font-medium">Description</label>
-          <Textarea id="description" name="description" rows={5} placeholder="What will volunteers do?" />
-        </div>
-
-        <div className="space-y-1.5">
-          <label htmlFor="category" className="text-sm font-medium">Event type</label>
-          <select id="category" name="category" className="h-9 w-full rounded-md border px-3 text-sm">
-            {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="space-y-1.5">
-          <label htmlFor="thumbnailUrl" className="text-sm font-medium">Thumbnail image URL</label>
-          <Input id="thumbnailImageUrl" name="thumbnailImageUrl" type="url" placeholder="https://..." />
-        </div>
-
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <label htmlFor="location" className="text-sm font-medium">Location</label>
-            <Input id="location" name="location" placeholder="Town Hall Square" />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="date" className="text-sm font-medium">Date</label>
-            <Input id="date" name="date" type="date" />
-          </div>
-        </div>
-
-        <Button type="submit" size="lg" className="w-full bg-emerald-700 text-white hover:bg-emerald-800">
-          Publish event
-        </Button>
-      </form>
-    </div>
+      </div>
+    </PrivateRoute>
   );
 }

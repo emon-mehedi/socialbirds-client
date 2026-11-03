@@ -1,86 +1,92 @@
-'use client'
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from '@/lib/auth-client';
-import { getToken } from '@/lib/get-token';
-import { IEvent } from './types';
+"use client";
+
+import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { authFetch } from "@/lib/auth-fetch";
+import { useSession } from "@/lib/auth-client";
 
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_SERVER_URI;
-
-const JoinButton = ({ event }: { event: IEvent }) => {
+// Join / Leave button on the event details page
+export default function JoinButton({ eventId, isPast }: { eventId: string; isPast: boolean }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session, isPending } = useSession();
   const userId = session?.user?.id;
 
-  const [joined, setJoined] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+  // joined
+  const [joined, setJoined] = useState<boolean | null>(null);
+  const [busy, setBusy] = useState(false);
 
+  // ask if already joined this event
   useEffect(() => {
-    if (isPending) return;               
-    if (!userId) {                       
-      setLoading(false);
-      return;
-    }
+    if (!userId) return;
 
-    const checkJoined = async () => {
+    async function checkJoined() {
       try {
-        const token = await getToken();
-        const res = await fetch(`${BACKEND}/joinedEvents/check/${event._id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await authFetch(`/joinedEvents/check/${eventId}`);
         const data = await res.json();
-        setJoined(data.joined);
-      } catch (error) {
-        console.error('Failed to check joined status:', error);
-      } finally {
-        setLoading(false);
+        setJoined(Boolean(data.joined));
+      } catch {
+        setJoined(false);
       }
-    };
-
+    }
     checkJoined();
-  }, [isPending, userId, event._id]);
+  }, [userId, eventId]);
 
-  const handleClick = async (): Promise<void> => {
+  const isJoined = userId ? joined : false;
+  const checking = isPending || (!!userId && joined === null);
+
+  const handleClick = async () => {
+    // not logged in -> go to login, then come back here
     if (!userId) {
-      router.push('/signIn');
+      toast.info("Please login to join this event");
+      router.push(`/signIn?redirect=${encodeURIComponent(pathname)}`);
       return;
     }
 
-    setLoading(true);
+    setBusy(true);
     try {
-      const token = await getToken();
-      const headers = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      };
-
-      const res = joined
-        ? await fetch(`${BACKEND}/joinedEvents/${event._id}`, { method: 'DELETE', headers })
-        : await fetch(`${BACKEND}/joinedEvents`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ eventId: event._id }),
+      const res = isJoined
+        ? await authFetch(`/joinedEvents/${eventId}`, { method: "DELETE" })
+        : await authFetch("/joinedEvents", {
+            method: "POST",
+            body: JSON.stringify({ eventId }),
           });
 
-      if (res.ok) setJoined(!joined);
-    } catch (error) {
-      console.error('Failed to update event status:', error);
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.message || "Something went wrong");
+        return;
+      }
+
+      setJoined(!isJoined);
+      toast.success(isJoined ? "You left this event" : "You joined this event. See you there!");
+      router.refresh(); // reloads the page data so the participant count updates
+    } catch {
+      toast.error("Something went wrong. Please try again.");
     } finally {
-      setLoading(false);
+      setBusy(false);
     }
   };
+
+  if (isPast) {
+    return (
+      <Button size="lg" disabled className="mt-6 h-10 w-full">
+        This event has ended
+      </Button>
+    );
+  }
 
   return (
     <Button
       size="lg"
-      disabled={loading}
-      className={`mt-6 w-full text-white ${joined ? 'bg-rose-600 hover:bg-rose-700' : 'bg-emerald-700 hover:bg-emerald-800'}`}
+      variant={isJoined ? "destructive" : "default"}
+      disabled={checking || busy}
+      className="mt-6 h-10 w-full"
       onClick={handleClick}
     >
-      {loading ? 'Loading...' : joined ? 'Joined (click to cancel)' : 'Join'}
+      {checking ? "Loading..." : busy ? "Please wait..." : isJoined ? "Leave Event" : "Join Event"}
     </Button>
   );
-};
-
-export default JoinButton;
+}

@@ -1,102 +1,137 @@
-'use client';
+"use client";
 
-import { signOut, updateUser, useSession } from '@/lib/auth-client';
-import { Button, FieldError, Form, Input, Label, TextField } from '@heroui/react';
-import Image from 'next/image';
-import Link from 'next/link';
-import React from 'react';
-import { PiArrowBendDownLeft } from 'react-icons/pi';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { FiLogOut } from "react-icons/fi";
+import FormField from "@/components/form-field";
+import PrivateRoute from "@/components/PrivateRoute";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { signOut, updateUser, useSession } from "@/lib/auth-client";
+import { validateProfile, type Errors } from "@/lib/validation";
 
-const Profile = () => {
+function ProfileContent() {
+  const router = useRouter();
   const { data: session } = useSession();
-  
+  const user = session?.user;
+
+  const [errors, setErrors] = useState<Errors>({});
+  const [loading, setLoading] = useState(false);
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-    const data: Record<string, string> = {};
+    const values = {
+      name: String(formData.get("name") ?? "").trim(),
+      photoURL: String(formData.get("photoURL") ?? "").trim(),
+    };
 
-    formData.forEach((value, key) => {
-      data[key] = value.toString();
+    const newErrors = validateProfile(values);
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      toast.error(Object.values(newErrors)[0]);
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await updateUser({
+      name: values.name,
+      ...(values.photoURL ? { image: values.photoURL } : {}),
     });
-     await updateUser({
-      name: data.name
-    });
+    setLoading(false);
+
+    if (error) {
+      toast.error(error.message || "Could not update your profile");
+      return;
+    }
+    toast.success("Profile updated successfully");
   };
 
+  const handleLogout = async () => {
+    await signOut();
+    toast.success("Logged out successfully");
+    router.push("/signIn");
+  };
+
+  if (!user) return null;
+
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-8 bg-slate-50/50">
+    <div className="flex justify-center px-4 py-12 sm:py-16">
       <div className="w-full max-w-md space-y-6">
-        
         {/* Header */}
-        <div className="text-center space-y-1">
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-            My Profile
-          </h1>
-          <p className="text-sm text-slate-500">See and manage your info here</p>
+        <div className="space-y-1 text-center">
+          <h1 className="text-3xl font-extrabold tracking-tight text-brand">My Profile</h1>
+          <p className="text-sm text-muted-foreground">See and update your info here</p>
         </div>
 
-        {/* User Info Card */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-row justify-between items-center gap-4">
-          <div className="flex flex-row items-center gap-3 overflow-hidden">
-            {session?.user.image ? (
-              <Image 
-                src={session.user.image} 
-                alt={session.user.name || "User"} 
-                width={48} 
-                height={48} 
-                className="w-12 h-12 rounded-xl object-cover shrink-0" 
+        {/* User info card */}
+        <div className="flex items-center justify-between gap-4 rounded-2xl border bg-card p-5 shadow-sm">
+          <div className="flex items-center gap-3 overflow-hidden">
+            {user.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.image}
+                alt={user.name || "User"}
+                referrerPolicy="no-referrer"
+                className="size-12 shrink-0 rounded-xl object-cover"
               />
             ) : (
-              <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg shrink-0">
-                {session?.user.name?.charAt(0).toUpperCase() || "?"}
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-lg font-bold text-brand">
+                {user.name?.charAt(0).toUpperCase() || "?"}
               </div>
             )}
             <div className="overflow-hidden">
-              <h2 className="text-lg font-semibold text-slate-800 truncate">
-                {session?.user.name}
-              </h2>
-              <p className="text-xs text-slate-400 truncate">
-                {session?.user.email}
-              </p>
+              <h2 className="truncate text-lg font-semibold">{user.name}</h2>
+              <p className="truncate text-xs text-muted-foreground">{user.email}</p>
             </div>
           </div>
-          
-          <Link 
-            href={'/signIn'} 
-            onClick={() => { signOut(); }} 
-            className="text-red-600 border border-red-200 hover:bg-red-50 rounded-xl px-3 py-2 flex flex-row items-center gap-1.5 text-sm font-medium transition-colors shrink-0"
-          >
-            <PiArrowBendDownLeft className="text-base" /> 
-            <span>Sign Out</span>
-          </Link>
+
+          <Button variant="destructive" size="lg" className="h-9 shrink-0" onClick={handleLogout}>
+            <FiLogOut /> Logout
+          </Button>
         </div>
 
-        {/* Update Form Card */}
-        <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100">
-          <Form className="flex flex-col gap-5" onSubmit={onSubmit}>
-            <h3 className="text-base font-semibold text-slate-800">Update Profile Info</h3>
-            
-            <div className="w-full flex flex-col">
-              <TextField isRequired name="name" className="w-full">
-                <Label className="text-sm font-medium text-slate-700">Name</Label>
-                <Input className="w-full mt-1" placeholder="Your name" />
-                <FieldError className="text-xs text-red-500 mt-1" />
-              </TextField>
-            </div>
+        {/* Update form */}
+        <div className="rounded-2xl border bg-card p-6 shadow-sm sm:p-8">
+          <form className="flex flex-col gap-5" onSubmit={onSubmit} noValidate>
+            <h3 className="text-base font-semibold">Update profile info</h3>
 
-            <Button 
-              type="submit" 
-              className="w-full mt-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 transition-colors"
+            <FormField label="Name" htmlFor="name" error={errors.name}>
+              <Input id="name" name="name" defaultValue={user.name} placeholder="Your name" aria-invalid={!!errors.name} />
+            </FormField>
+
+            <FormField
+              label="Photo URL"
+              htmlFor="photoURL"
+              error={errors.photoURL}
+              hint="Paste a link to your new profile picture."
             >
-              Update
-            </Button>
-          </Form>
-        </div>
+              <Input
+                id="photoURL"
+                name="photoURL"
+                type="url"
+                defaultValue={user.image ?? ""}
+                placeholder="https://example.com/my-photo.jpg"
+                aria-invalid={!!errors.photoURL}
+              />
+            </FormField>
 
+            <Button type="submit" size="lg" className="h-10 w-full" disabled={loading}>
+              {loading ? "Updating..." : "Update"}
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   );
-};
+}
 
-export default Profile;
+export default function ProfilePage() {
+  return (
+    <PrivateRoute>
+      <ProfileContent />
+    </PrivateRoute>
+  );
+}

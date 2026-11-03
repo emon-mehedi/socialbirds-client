@@ -43,7 +43,7 @@ function MyEventsList() {
 export default function MyEventsPage() {
   return (
     <PrivateRoute>
-      <div className="mx-auto max-w-6xl px-4 py-12">
+      <div className="mx-auto max-w-6xl px-4 py-13">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-4xl font-extrabold text-brand">Manage Events</h1>
